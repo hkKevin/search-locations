@@ -1,5 +1,5 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-  publicPath: 'search-locations',
+  base: "/search-locations/",
   transpileDependencies: true
 })
