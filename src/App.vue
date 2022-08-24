@@ -1,15 +1,31 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <form @submit="submitSearch">
+      <input 
+        id="search-text" 
+        type="text" 
+        placeholder="Search Locations"
+        v-model="searchText"
+      >
+      <input type="submit" value="Search">
+    </form>
+    <p>Searching: {{ searchText }}</p>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
   name: 'App',
-  components: {
-    HelloWorld
+  data () {
+    return {
+      searchText: ''
+    }
+  },
+  methods: {
+    submitSearch(event) {
+      event.preventDefault()
+      console.log("Search submitted: ", this.searchText)
+    }
   }
 }
 </script>
