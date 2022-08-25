@@ -1,10 +1,8 @@
 <template>
   <div>
     <button @click="getLocation">Get current position</button>
-    <br v-if="curPosResponse" /><br v-if="curPosResponse" />
     <div v-if="curPosResponse" class="cur-pos-response">{{ curPosResponse }}</div>
-    <br/><br/>
-    <form @submit="submitSearch">
+    <form id="search-form" @submit="submitSearch">
       <input 
         id="search-text" 
         type="text" 
@@ -13,7 +11,13 @@
       >
       <input type="submit" value="Search">
     </form>
-    <p>Searching: {{ searchText }}</p>
+    
+    <table v-if="searchResponse.length > 0" id="search-results-table">
+      <tr v-for="location in searchResponse" :key="location.id">
+        <td>{{ location.place_name }}</td>
+      </tr>
+    </table>
+    <div v-else-if="searchResponse.length <= 0 && searched" class="no-search-results">No results</div>
 
     <div id="map">
       <iframe 
@@ -33,24 +37,34 @@ export default {
   data () {
     return {
       searchText: '',
-      curPosResponse: false
+      curPosResponse: false,
+      searchResponse: [],
+      searched: false,
+      baseUrl: 'https://api.mapbox.com/geocoding/v5/mapbox.places/',
+      mapboxToken: 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q'
     }
   },
   methods: {
     submitSearch(event) {
       event.preventDefault()
       console.log("Search submitted: ", this.searchText)
+      fetch(`${this.baseUrl}${this.searchText}.json?limit=10&proximity=ip&access_token=${this.mapboxToken}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('Searched: ', data)
+          this.searchResponse = data.features
+        })
+        .catch((error) => alert(error.message))
+      this.searched = true
     },
     getLocation() {
       // alert('getLocation')
       if (navigator.geolocation) {
       // alert('has navigator.geolocation')
-        // console.log("🚀 ~ file: App.vue ~ line 34 ~ getLocation ~ navigator.gerlocation", navigator.gerlocation)
         navigator.geolocation.getCurrentPosition((position) => {
           console.log("🚀 ~ file: App.vue ~ line 35 ~ navigator.gerlocation.getCurrentPosition ~ position", position)
           const { latitude, longitude } = position.coords;
-          const mapboxToken = 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q'
-          fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxToken}`)
+          fetch(`${this.baseUrl}${longitude},${latitude}.json?access_token=${this.mapboxToken}`)
             .then((response) => response.json())
             .then((data) => {
               console.log(data)
@@ -89,5 +103,22 @@ body {
 
 #map {
   height: 80vh;
+}
+
+#search-form, .cur-pos-response, #map, .no-search-results, #search-results-table {
+  margin-top: 1rem;
+}
+
+table {
+  margin-inline: auto;
+}
+
+tr {
+  text-align: left;
+  line-height: 1.5rem;
+}
+
+.cur-pos-response, table {
+  padding: 0 1rem;
 }
 </style>
