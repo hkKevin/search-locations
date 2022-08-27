@@ -12,12 +12,18 @@
       <input type="submit" value="Search">
     </form>
     
-    <table v-if="searchResponse.length > 0" id="search-results-table">
+    <!-- <table v-if="searchResponse.length > 0" id="search-results-table">
       <tr v-for="location in searchResponse" :key="location.id">
         <td>{{ location.place_name }}</td>
       </tr>
-    </table>
-    <div v-else-if="searchResponse.length <= 0 && searched" class="no-search-results">No results</div>
+    </table> -->
+    <a-table 
+      v-if="filteredSearchResponse.length > 0" 
+      id="search-results-table"
+      :columns="tableColumns"
+      :data-source="filteredSearchResponse"
+    />
+    <div v-else-if="filteredSearchResponse.length <= 0 && searched" class="no-search-results">No results</div>
 
     <div id="map">
       <iframe 
@@ -39,6 +45,10 @@ export default {
       searchText: '',
       curPosResponse: false,
       searchResponse: [],
+      filteredSearchResponse: [],
+      tableColumns: [
+        { title: 'Address', dataIndex: 'address', key: 'address' }
+      ],
       searched: false,
       baseUrl: 'https://api.mapbox.com/geocoding/v5/mapbox.places/',
       mapboxToken: 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q'
@@ -52,7 +62,16 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           console.log('Searched: ', data)
-          this.searchResponse = data.features
+          // this.searchResponse = data.features
+          this.filteredSearchResponse = []
+          console.log("🚀 ~ file: App.vue ~ line 71 ~ .then ~ this.filteredSearchResponse", this.filteredSearchResponse)
+          for (const location of data.features) {
+            this.filteredSearchResponse.push({
+              key: location.id,
+              address: location.place_name,
+            })
+          }
+          console.log("this.filteredSearchResponse", this.filteredSearchResponse)
         })
         .catch((error) => alert(error.message))
       this.searched = true
@@ -113,12 +132,7 @@ table {
   margin-inline: auto;
 }
 
-tr {
-  text-align: left;
-  line-height: 1.5rem;
-}
-
-.cur-pos-response, table {
+.cur-pos-response, table, ul.ant-pagination {
   padding: 0 1rem;
 }
 </style>
