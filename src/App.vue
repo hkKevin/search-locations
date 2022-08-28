@@ -12,11 +12,6 @@
       <a-button type="primary" @click="submitSearch">Search</a-button>
     </form>
     
-    <!-- <table v-if="searchResponse.length > 0" id="search-results-table">
-      <tr v-for="location in searchResponse" :key="location.id">
-        <td>{{ location.place_name }}</td>
-      </tr>
-    </table> -->
     <div class="delete-div" v-if="outputResults.length > 0" >
       <a-button danger :disabled="!hasSelected" @click="deleteHandler">
         Delete
@@ -121,7 +116,21 @@ export default {
       console.log("🚀 ~ file: App.vue ~ line 121 ~ onSelectChange ~ this.selectedRowKeys", this.selectedRowKeys)
     },
     deleteHandler() {
-      console.log('^ Delete something...')
+      const removePos = []
+      //record the index of the element to be removed in an array
+      for (const x of this.selectedRowKeys) {
+        removePos.push(this.outputResults.map((e) => { return e.key }).indexOf(x))
+      }
+
+      // remove selected locations in the outputResults array
+      this.outputResults = this.outputResults.filter((value, index) => {
+        return !removePos.includes(index)
+      })
+      
+      // console.log('* outputResults: ', this.outputResults)
+
+      //clean up (avoid highlighting selected location; avoid showing how many locations are selected)
+      this.selectedRowKeys = []
     }
   }
 }
