@@ -27,19 +27,13 @@
     />
     <div v-else-if="outputResults.length <= 0 && searched" class="no-search-results">No results</div>
 
-    <div id="map">
-      <iframe 
-        width='100%' 
-        height='100%' 
-        src="https://api.mapbox.com/styles/v1/kevin852/cl784awq0002x14mgw9450gq5/draft.html?title=false&access_token=pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q&zoomwheel=true#10/43.7171/-79.3828" 
-        title="Basic" 
-        style="border:none;">
-      </iframe>
-    </div>
+    <div id="map"></div>
   </div>
 </template>
 
 <script>
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 export default {
   name: 'App',
   data () {
@@ -61,6 +55,19 @@ export default {
     hasSelected() {
       return this.selectedRowKeys.length > 0
     }
+  },
+  mounted() {
+    mapboxgl.accessToken = this.mapboxToken
+    const map = new mapboxgl.Map({
+      container: 'map', // container ID
+      style: 'mapbox://styles/mapbox/light-v10', // style URL
+      center: [-79.40688, 43.73033], // starting position [lng, lat]
+      zoom: 10, // initial zoom
+      projection: 'globe' // display the map as a 3D globe
+    })
+    map.on('style.load', () => {
+      map.setFog({}) // Set the default atmosphere style
+    })
   },
   methods: {
     submitSearch(event) {
