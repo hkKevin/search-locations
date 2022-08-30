@@ -27,15 +27,21 @@
     />
     <div v-else-if="outputResults.length <= 0 && searched" class="no-search-results">No results</div>
 
-    <div id="map"></div>
+    <VMap :options="map" />
   </div>
 </template>
 
 <script>
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import 'mapbox-gl/dist/mapbox-gl.css'
+import 'v-mapbox/dist/v-mapbox.css'
+import mapbox from "mapbox-gl"
+import { VMap } from "v-mapbox"
+
 export default {
   name: 'App',
+  components: {
+    VMap
+  },
   data () {
     return {
       searchText: '',
@@ -48,7 +54,23 @@ export default {
       selectedRowKeys: [],
       searched: false,
       baseUrl: 'https://api.mapbox.com/geocoding/v5/mapbox.places/',
-      mapboxToken: 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q'
+      mapboxToken: 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q',
+      // mapStyle: 'mapbox://styles/mapbox/light-v10',
+      map: {
+        accessToken: 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q',
+        style: 'mapbox://styles/mapbox/light-v10',
+        center: [-79.40688, 43.73033],
+        zoom: 1,
+        maxZoom: 22,
+        crossSourceCollisions: false,
+        failIfMajorPerformanceCaveat: false,
+        attributionControl: false,
+        preserveDrawingBuffer: true,
+        hash: false,
+        minPitch: 0,
+        maxPitch: 60,
+        // projection: 'globe',
+      }
     }
   },
   computed: {
@@ -56,18 +78,9 @@ export default {
       return this.selectedRowKeys.length > 0
     }
   },
-  mounted() {
-    mapboxgl.accessToken = this.mapboxToken
-    const map = new mapboxgl.Map({
-      container: 'map', // container ID
-      style: 'mapbox://styles/mapbox/light-v10', // style URL
-      center: [-79.40688, 43.73033], // starting position [lng, lat]
-      zoom: 10, // initial zoom
-      projection: 'globe' // display the map as a 3D globe
-    })
-    map.on('style.load', () => {
-      map.setFog({}) // Set the default atmosphere style
-    })
+  created() {
+    // We need to set mapbox-gl library here in order to use it in template
+    this.mapbox = mapbox;
   },
   methods: {
     submitSearch(event) {
