@@ -90,7 +90,7 @@ export default {
   watch: {
     outputResults(newOutputResults) {
       if (newOutputResults.length> 0) {
-        fetch(`http://api.timezonedb.com/v2.1/get-time-zone?key=W2M9HH219UX6&format=json&by=position&lat=${this.outputResults[0].coord[1]}&lng=${this.outputResults[0].coord[0]}`)
+        fetch(`https://api.timezonedb.com/v2.1/get-time-zone?key=W2M9HH219UX6&format=json&by=position&lat=${this.outputResults[0].coord[1]}&lng=${this.outputResults[0].coord[0]}`)
           .then(res => res.json())
           .then(timezoneData => {
             console.log(`Timezone of ${this.outputResults[0].address}: `, timezoneData.zoneName)
@@ -129,7 +129,7 @@ export default {
             })
           }
         })
-        .catch((error) => alert(error.message))
+        .catch((error) => console.warn(error.message))
         this.searched = true
     },
     getLocation() {
