@@ -112,11 +112,11 @@ export default {
   methods: {
     submitSearch(event) {
       event.preventDefault()
-      console.log("Search submitted: ", this.searchText)
+      // console.log("Search submitted: ", this.searchText)
       fetch(`${this.baseUrl}${this.searchText}.json?limit=10&proximity=ip&access_token=${this.mapboxToken}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log('Searched: ', data)
+          // console.log('Searched: ', data)
           // this.searchResponse = data.features
           this.outputResults = []
           // console.log("🚀 ~ file: App.vue ~ line 71 ~ .then ~ this.outputResults", this.outputResults)
@@ -137,20 +137,20 @@ export default {
       if (navigator.geolocation) {
       // alert('has navigator.geolocation')
         navigator.geolocation.getCurrentPosition((position) => {
-          console.log("🚀 ~ file: App.vue ~ line 35 ~ navigator.gerlocation.getCurrentPosition ~ position", position)
+          // console.log("🚀 ~ file: App.vue ~ line 35 ~ navigator.gerlocation.getCurrentPosition ~ position", position)
           const { latitude, longitude } = position.coords;
           fetch(`${this.baseUrl}${longitude},${latitude}.json?access_token=${this.mapboxToken}`)
             .then((response) => response.json())
             .then((data) => {
-              console.log(data)
+              // console.log(data)
               const location = data.features[0]
               if (data.features.length > 0 && location.place_name) {
                 this.curPosResponse = location.place_name
               }
             })
-            .catch((error) => alert(error.message))
+            .catch((error) => console.warn(error.message))
         }, (err) => {
-          console.log(err.message)
+          console.warn(err.message)
           this.curPosResponse = err.message
         })
       } else {
@@ -159,9 +159,9 @@ export default {
       
     },
     onSelectChange (selectedRowKeys) {
-      console.log('selectedRowKeys changed: ', selectedRowKeys)
+      // console.log('selectedRowKeys changed: ', selectedRowKeys)
       this.selectedRowKeys = selectedRowKeys
-      console.log("🚀 ~ file: App.vue ~ line 121 ~ onSelectChange ~ this.selectedRowKeys", this.selectedRowKeys)
+      // console.log("🚀 ~ file: App.vue ~ line 121 ~ onSelectChange ~ this.selectedRowKeys", this.selectedRowKeys)
     },
     deleteHandler() {
       const removePos = []
