@@ -27,14 +27,22 @@
     />
     <div v-else-if="outputResults.length <= 0 && searched" class="no-search-results">No results</div>
 
-    <VMap :options="map" />
+    <div v-if="outputResults.length > 0 && latestLocationInfo">{{ latestLocationInfo }}</div>
+
+    <v-map :options="map">
+      <!-- <v-marker
+          :coordinates="coordinates"
+          :options="{}"
+          :popupOptions="{}"
+      /> -->
+    </v-map>
   </div>
 </template>
 
 <script>
 import 'mapbox-gl/dist/mapbox-gl.css'
 import 'v-mapbox/dist/v-mapbox.css'
-import mapbox from "mapbox-gl"
+// import mapbox from "mapbox-gl"
 import { VMap } from "v-mapbox"
 
 export default {
@@ -55,13 +63,13 @@ export default {
       searched: false,
       baseUrl: 'https://api.mapbox.com/geocoding/v5/mapbox.places/',
       mapboxToken: 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q',
-      // mapStyle: 'mapbox://styles/mapbox/light-v10',
+      mapStyle: 'mapbox://styles/mapbox/light-v10',
       map: {
         accessToken: 'pk.eyJ1Ijoia2V2aW44NTIiLCJhIjoiY2w3N3d3dHYzMDQ0YzNvcGx6b3Nndmg4NSJ9.3AuL3Enwv-Lt02i_8mDP4Q',
         style: 'mapbox://styles/mapbox/light-v10',
         center: [-79.40688, 43.73033],
         zoom: 1,
-        maxZoom: 22,
+        maxZoom: 15,
         crossSourceCollisions: false,
         failIfMajorPerformanceCaveat: false,
         attributionControl: false,
@@ -70,6 +78,25 @@ export default {
         minPitch: 0,
         maxPitch: 60,
         // projection: 'globe',
+      },
+      coordinates: [-79.40688, 43.73033],
+      latestLocationInfo: ''
+      // marker: {
+      //   coordinates: [-79.40688, 43.73033],
+      //   color:'blue'
+      // }
+    }
+  },
+  watch: {
+    outputResults(newOutputResults) {
+      if (newOutputResults.length> 0) {
+        fetch(`http://api.timezonedb.com/v2.1/get-time-zone?key=W2M9HH219UX6&format=json&by=position&lat=${this.outputResults[0].coord[1]}&lng=${this.outputResults[0].coord[0]}`)
+          .then(res => res.json())
+          .then(timezoneData => {
+            console.log(`Timezone of ${this.outputResults[0].address}: `, timezoneData.zoneName)
+            this.latestLocationInfo = timezoneData.abbreviation + ', ' + timezoneData.formatted + ', ' + timezoneData.zoneName
+          })
+          .catch(err => alert(err))
       }
     }
   },
@@ -78,10 +105,10 @@ export default {
       return this.selectedRowKeys.length > 0
     }
   },
-  created() {
-    // We need to set mapbox-gl library here in order to use it in template
-    this.mapbox = mapbox;
-  },
+  // created() {
+  //   // We need to set mapbox-gl library here in order to use it in template
+  //   this.mapbox = mapbox;
+  // },
   methods: {
     submitSearch(event) {
       event.preventDefault()
@@ -92,14 +119,15 @@ export default {
           console.log('Searched: ', data)
           // this.searchResponse = data.features
           this.outputResults = []
-          console.log("🚀 ~ file: App.vue ~ line 71 ~ .then ~ this.outputResults", this.outputResults)
+          // console.log("🚀 ~ file: App.vue ~ line 71 ~ .then ~ this.outputResults", this.outputResults)
           for (const location of data.features) {
+
             this.outputResults.push({
               key: location.id,
               address: location.place_name,
+              coord: location.center
             })
           }
-          console.log("this.outputResults", this.outputResults)
         })
         .catch((error) => alert(error.message))
         this.searched = true
